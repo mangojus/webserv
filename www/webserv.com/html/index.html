@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webserv — Home</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="shortcut icon" href="/assets/personne.png" type="image/png" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-flex">
+      <a class="brand" href="/">webserv</a>
+      <nav class="nav">
+        <a href="/" class="active">Home</a>
+        <a href="/contact/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- HERO -->
+    <section class="hero">
+      <h1>Server online ✅</h1>
+
+      <div class="hero-images">
+        <img src="/assets/personne.png" alt="personne" class="img-large" />
+        <img src="/assets/sever_image.avif" alt="serveur" class="img-small" />
+      </div>
+
+      <p>
+			This page is used to run some test
+      </p>
+
+      <div class="cta-row">
+        <a class="btn" href="/contact/contact.html">Contact</a>
+        <a class="btn" href="http://gallery.localhost:8080">Gallery</a>
+        <a class="btn" href="/redirect" target="_blank">Redirection</a>
+        <a class="btn btn-ghost" href="/does-not-exist">Tester 404</a>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <section class="grid">
+
+      <article class="card">
+        <h2>Useful Tests</h2>
+        <ul>
+          <li><a href="/css/style.css">View CSS</a></li>
+          <li><a href="/assets/sever_image.avif">upload image_server</a></li>
+		  <li><a href="/qersdf/date.py">Not a valid link for CGI date</a></li>
+          <li><a href="/python/date.py" title="CGI GET">CGI date</a></li>
+		  <li><a href="/python/post_easy.py" title="enter some text in the placeholder">CGI post_easy link</a></li>
+		  <li>
+			<form action="/python/post_easy.py" method="post">
+			  <input type="text" name="message" placeholder="Message to send" required />
+			  <button type="submit">Send POST</button>
+			</form>
+		  </li>
+        </ul>
+        <p class="hint">
+          Some links may return 404 if not implemented.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Request Information</h2>
+        <p>
+          Check the network tab:
+          <strong>Status</strong>, <strong>Content-Type</strong>,
+          <strong>Content-Length</strong>.
+        </p>
+        <p class="hint">
+          curl -v http://localhost:PORT/
+        </p>
+      </article>
+
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Webserv project — server HTTP</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent:   #e8ff47;
+      --accent2:  #ff4757;
+      --bg:       #0a0a0a;
+      --surface:  #111111;
+      --border:   #1e1e1e;
+      --text:     #e8e8e8;
+      --muted:    #555;
+      --radius:   4px;
+      --gap:      1px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,10,.92);
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: .5rem;
+    }
+    .logo-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -.01em;
+      color: #fff;
+    }
+    .logo-tag {
+      font-size: .65rem;
+      color: var(--accent);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      border: 1px solid var(--accent);
+      padding: .1rem .4rem;
+      border-radius: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    #count {
+      font-size: .72rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+    #count span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-wrap {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .upload-zone {
+      position: relative;
+      border: 1px dashed #2a2a2a;
+      border-radius: var(--radius);
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: var(--surface);
+    }
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(232,255,71,.03);
+    }
+    .upload-zone.dragover .upload-icon { transform: scale(1.15); }
+
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      margin-bottom: .6rem;
+      display: block;
+      transition: transform .2s;
+      filter: grayscale(1);
+    }
+    .upload-zone:hover .upload-icon,
+    .upload-zone.dragover .upload-icon {
+      filter: grayscale(0);
+    }
+
+    .upload-text {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: .3rem;
+    }
+    .upload-hint {
+      font-size: .68rem;
+      color: #333;
+      letter-spacing: .06em;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .9rem 2rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    #status {
+      font-size: .75rem;
+      letter-spacing: .05em;
+      color: var(--muted);
+      min-height: 1em;
+      flex: 1;
+    }
+    #status.ok  { color: #7fff7a; }
+    #status.err { color: var(--accent2); }
+
+    .toolbar-actions {
+      display: flex;
+      gap: .6rem;
+    }
+
+    .btn {
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      letter-spacing: .08em;
+      padding: .45rem 1.1rem;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all .15s;
+      text-transform: uppercase;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 500;
+    }
+    .btn-primary:hover { background: #d4eb2e; }
+    .btn-primary:disabled { opacity: .3; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .btn-ghost:hover { border-color: #444; color: var(--text); }
+
+    /* ── PROGRESS BAR ── */
+    #progress-wrap {
+      height: 2px;
+      background: var(--border);
+      display: none;
+    }
+    #progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width .3s;
+    }
+
+    /* ── GRID ── */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--gap);
+      padding: var(--gap);
+      background: var(--border);
+    }
+
+    /* ── EMPTY ── */
+    #empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .8rem;
+      padding: 6rem 2rem;
+      background: var(--bg);
+      color: var(--muted);
+    }
+    #empty-state .empty-icon { font-size: 3rem; opacity: .3; }
+    #empty-state p { font-size: .8rem; letter-spacing: .08em; }
+
+    /* ── CARD ── */
+    .card {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: var(--surface);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .35s cubic-bezier(.25,.46,.45,.94),
+                  filter .35s;
+    }
+    .card:hover img {
+      transform: scale(1.06);
+      filter: brightness(.45);
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: .8rem;
+      background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .card:hover .card-overlay { opacity: 1; }
+
+    .card-name {
+      font-size: .68rem;
+      color: #ccc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: .4rem;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: .4rem;
+    }
+
+    .btn-del {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem;
+      padding: .2rem .6rem;
+      background: transparent;
+      border: 1px solid rgba(255,71,87,.6);
+      color: rgba(255,71,87,.8);
+      border-radius: 2px;
+      cursor: pointer;
+      letter-spacing: .05em;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .btn-del:hover {
+      background: var(--accent2);
+      border-color: var(--accent2);
+      color: #fff;
+    }
+
+    /* card entrance animation */
+    .card {
+      animation: cardIn .3s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: scale(.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── LIGHTBOX ── */
+    #lightbox {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.95);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      cursor: zoom-out;
+    }
+    #lightbox.open { display: flex; }
+
+    #lightbox img {
+      max-width: min(90vw, 1200px);
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: 2px;
+      box-shadow: 0 20px 80px rgba(0,0,0,.8);
+      cursor: default;
+      animation: lbIn .25s ease;
+    }
+    @keyframes lbIn {
+      from { opacity: 0; transform: scale(.93); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    #lightbox-meta {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    #lightbox-name {
+      font-size: .72rem;
+      color: #666;
+      letter-spacing: .08em;
+    }
+
+    #lightbox-close {
+      position: fixed;
+      top: 1.4rem; right: 1.8rem;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 50%;
+      color: #999;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    #lightbox-close:hover {
+      background: rgba(255,255,255,.14);
+      color: #fff;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #333; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-title">GALLERY</span>
+      <a href="http://localhost:8080"><span class="logo-tag">HOME</span></a>
+    </div>
+    <div class="header-right">
+      <div id="count"><span id="count-num">0</span> photo(s)</div>
+    </div>
+  </header>
+
+  <!-- Upload -->
+  <div class="upload-wrap">
+    <div class="upload-zone" id="dropzone">
+      <input type="file" id="file-input" accept="image/*" multiple />
+      <span class="upload-icon">⬆</span>
+      <p class="upload-text">Glisse des images ici, ou clique pour sélectionner</p>
+      <span class="upload-hint">JPG · PNG · GIF · WEBP — 5 Mo max par fichier</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div id="status"></div>
+    <div class="toolbar-actions">
+      <button class="btn btn-primary" id="btn-send" disabled>Envoyer</button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div id="progress-wrap">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- Grid -->
+  <div id="grid"></div>
+
+  <!-- Lightbox -->
+  <div id="lightbox">
+    <button id="lightbox-close" title="Fermer (Échap)">✕</button>
+    <img id="lightbox-img" src="" alt="" />
+    <div id="lightbox-meta">
+      <span id="lightbox-name"></span>
+    </div>
+  </div>
+
+<script>
+  const UPLOAD_URL = '/cgi-bin/gallery_upload.py';
+  const DELETE_BASE = '/gallery/';
+  const LIST_URL   = '/cgi-bin/gallery_list.py';
+  const IMG_BASE   = '/gallery/';
+
+  const grid      = document.getElementById('grid');
+  const statusEl  = document.getElementById('status');
+  const fileInput = document.getElementById('file-input');
+  const btnSend   = document.getElementById('btn-send');
+  const dropzone  = document.getElementById('dropzone');
+  const lightbox  = document.getElementById('lightbox');
+  const lbImg     = document.getElementById('lightbox-img');
+  const lbName    = document.getElementById('lightbox-name');
+  const countNum  = document.getElementById('count-num');
+  const progWrap  = document.getElementById('progress-wrap');
+  const progBar   = document.getElementById('progress-bar');
+
+  // ── Sélection fichiers ──
+  fileInput.addEventListener('change', () => {
+    btnSend.disabled = fileInput.files.length === 0;
+    if (fileInput.files.length > 0) {
+      setStatus(`${fileInput.files.length} fichier(s) sélectionné(s)`, '');
+    }
+  });
+
+  // ── Drag & Drop ──
+  ['dragenter', 'dragover'].forEach(ev =>
+    dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); })
+  );
+  ['dragleave', 'drop'].forEach(ev =>
+    dropzone.addEventListener(ev, () => dropzone.classList.remove('dragover'))
+  );
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    const dt = new DataTransfer();
+    for (const f of e.dataTransfer.files) {
+      if (f.type.startsWith('image/')) dt.items.add(f);
+    }
+    fileInput.files = dt.files;
+    btnSend.disabled = fileInput.files.length === 0;
+    if (fileInput.files.length > 0)
+      setStatus(`${fileInput.files.length} fichier(s) prêt(s)`, '');
+  });
+
+  // ── Upload ──
+  btnSend.addEventListener('click', async () => {
+    const files = Array.from(fileInput.files);
+    if (!files.length) return;
+
+    btnSend.disabled = true;
+    progWrap.style.display = 'block';
+    progBar.style.width = '0%';
+
+    let done = 0;
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        setStatus(`✗ ${file.name} dépasse 5 Mo — ignoré`, 'err');
+        done++;
+        continue;
+      }
+      setStatus(`Envoi de ${file.name}…`, '');
+      const body = await file.arrayBuffer();
+      try {
+        const res = await fetch(UPLOAD_URL + '?filename=' + encodeURIComponent(file.name), {
+          method: 'POST',
+          headers: { 'Content-Type': file.type || 'application/octet-stream' },
+          body
+        });
+        if (res.ok) {
+          setStatus(`✓ ${file.name} envoyé`, 'ok');
+        } else {
+          const txt = await res.text();
+          setStatus(`✗ Erreur : ${txt}`, 'err');
+        }
+      } catch (err) {
+        setStatus(`✗ Réseau : ${err.message}`, 'err');
+      }
+      done++;
+      progBar.style.width = (done / files.length * 100) + '%';
+    }
+
+    fileInput.value = '';
+    btnSend.disabled = true;
+    setTimeout(() => { progWrap.style.display = 'none'; progBar.style.width = '0%'; }, 800);
+    loadGallery();
+  });
+
+  // ── Chargement ──
+  async function loadGallery() {
+    try {
+      const res  = await fetch(LIST_URL + '?_=' + Date.now()); // cache-bust
+      const data = await res.json();
+      renderGrid(data.images || []);
+    } catch {
+      grid.innerHTML = '<div id="empty-state"><span class="empty-icon">⚠</span><p>Impossible de charger la galerie</p></div>';
+    }
+  }
+
+  function renderGrid(images) {
+    countNum.textContent = images.length;
+    if (!images.length) {
+      grid.innerHTML = `
+        <div id="empty-state">
+          <span class="empty-icon">📂</span>
+          <p>Aucune image — glisse-en quelques-unes !</p>
+        </div>`;
+      return;
+    }
+    grid.innerHTML = '';
+    images.forEach((name, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = `${i * 30}ms`;
+
+      const img = document.createElement('img');
+      img.src     = IMG_BASE + encodeURIComponent(name);
+      img.alt     = name;
+      img.loading = 'lazy';
+      img.addEventListener('click', () => openLightbox(name));
+
+      const overlay = document.createElement('div');
+      overlay.className = 'card-overlay';
+      overlay.innerHTML = `
+        <span class="card-name">${name}</span>
+        <div class="card-actions">
+          <button class="btn-del">Supprimer</button>
+        </div>`;
+      overlay.querySelector('.btn-del').addEventListener('click', e => {
+        e.stopPropagation();
+        deleteImage(name);
+      });
+
+      card.appendChild(img);
+      card.appendChild(overlay);
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Suppression ──
+  async function deleteImage(name) {
+    if (!confirm(`Supprimer "${name}" ?`)) return;
+    setStatus(`Suppression de ${name}…`, '');
+    try {
+      const res = await fetch(DELETE_BASE + encodeURIComponent(name), {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setStatus(`✓ Supprimé : ${name}`, 'ok');
+        loadGallery();
+      } else {
+        setStatus('✗ Erreur lors de la suppression', 'err');
+      }
+    } catch {
+      setStatus('✗ Erreur réseau', 'err');
+    }
+  }
+
+  // ── Lightbox ──
+  function openLightbox(name) {
+    lbImg.src = IMG_BASE + encodeURIComponent(name);
+    lbName.textContent = name;
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // ── Helper ──
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className   = cls;
+  }
+
+  // Init
+  loadGallery();
+</script>
+</body>
+</html>

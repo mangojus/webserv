@@ -1,0 +1,10 @@
+/webserv
+.build/
+*.o
+*.d
+*.swp
+__pycache__/
+.vscode/
+www/webserv.com/data/
+www/webserv.com/html/upload/
+www/gallery.com/html/gallery/

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Webserv — Contact</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="/">webserv</a>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/contact.html" aria-current="page">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Contact</h1>
+      <p>
+        This page allows you to test a <strong>POST</strong> (form) and the
+        routes on the server side.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Form</h2>
+
+      <form action="/cgi-bin/contact.py" method="post">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" placeholder="Ada Lovelace" required />
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="ada@example.com" required />
+        </div>
+
+        <div class="field">
+          <label for="topic">Topic</label>
+          <select id="topic" name="topic">
+            <option value="question">Question</option>
+            <option value="bug">Bug</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" placeholder="Your message..." required></textarea>
+        </div>
+
+        <div class="cta-row">
+          <button class="btn" type="submit">Send</button>
+          <a class="btn btn-ghost" href="/">Back to Home</a>
+        </div>
+
+        <p class="hint">
+          This is a simple contact form. All fields are required.
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>webserv • test contact page</small>
+    </div>
+  </footer>
+</body>
+</html>
